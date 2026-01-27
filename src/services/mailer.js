@@ -1,36 +1,26 @@
 // src/services/mailer.js
 const nodemailer = require("nodemailer");
+const mailConfig = require("../config/mail"); // adjust path if needed
 
-function getBool(v) {
-  return String(v).toLowerCase() === "true";
+function assertSmtp(c) {
+  const { host, port, auth } = c.smtp;
+  if (!host || !port || !auth?.user || !auth?.pass) {
+    throw new Error("Missing SMTP_DEFAULT_* vars in Railway Variables.");
+  }
 }
 
-function buildTransport() {
-  const host = process.env.SMTP_DEFAULT_HOST || process.env.MAIL_HOST;
-  const port = Number(process.env.SMTP_DEFAULT_PORT || process.env.MAIL_PORT || 465);
-  const secure = getBool(process.env.SMTP_DEFAULT_SECURE || process.env.MAIL_SECURE || "true");
-
-  const user = process.env.SMTP_DEFAULT_USER || process.env.MAIL_USERNAME;
-  const pass = process.env.SMTP_DEFAULT_PASS || process.env.MAIL_PASSWORD;
-
-  if (!host || !port || !user || !pass) {
-    throw new Error(
-      "Missing SMTP env vars. Need SMTP_DEFAULT_HOST/PORT/SECURE/USER/PASS"
-    );
-  }
-
-  return nodemailer.createTransport({
-    host,
-    port,
-    secure,
-    auth: { user, pass },
-  });
+let _transport;
+function getTransport() {
+  if (_transport) return _transport;
+  assertSmtp(mailConfig);
+  _transport = nodemailer.createTransport(mailConfig.smtp);
+  return _transport;
 }
 
 async function sendMail({ to, subject, text, html, from }) {
-  const transport = buildTransport();
-  const fromName = process.env.MAIL_FROM_NAME || process.env.APP_NAME || "Dream Water Supply";
-  const fromValue = from ? `${fromName} <${from}>` : `${fromName} <${process.env.SMTP_DEFAULT_USER}>`;
+  const transport = getTransport();
+  const fromEmail = from || mailConfig.from;
+  const fromValue = `${mailConfig.fromName} <${fromEmail}>`;
 
   return transport.sendMail({
     from: fromValue,
