@@ -5,6 +5,7 @@ const cors = require("cors");
 const { notFoundHandler, errorHandler } = require("./middleware/errors");
 const healthRoutes = require("./routes/health.routes");
 const authRoutes = require("./routes/auth.routes");
+const passwordResetRoutes = require("./routes/password-reset.routes");
 
 const app = express();
 
