@@ -17,7 +17,7 @@ app.use(express.json({ limit: "2mb" }));
 
 app.use("/health", healthRoutes);
 app.use("/api/auth", authRoutes);
-pp.use("/api/auth", authRoutes);
+app.use("/api/auth", authRoutes);
 app.use("/api/auth", passwordResetRoutes);
 
 app.use(notFoundHandler);
