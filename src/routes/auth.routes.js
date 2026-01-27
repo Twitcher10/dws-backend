@@ -1,3 +1,4 @@
+// src/routes/auth.routes.js
 const router = require("express").Router();
 const {
   login,
@@ -10,7 +11,6 @@ const { requireAuth } = require("../middleware/requireAuth");
 router.post("/login", login);
 router.get("/me", requireAuth, (req, res) => res.json({ user: req.user }));
 
-// Forgot password flow
 router.post("/forgot-password", forgotPassword);
 router.post("/verify-otp", verifyOtp);
 router.post("/reset-password", resetPassword);

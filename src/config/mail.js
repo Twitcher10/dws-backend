@@ -1,20 +1,25 @@
-const MAIL = {
-  host: process.env.MAIL_HOST,
-  port: Number(process.env.MAIL_PORT || 587),
-  secure: String(process.env.MAIL_SECURE || "false") === "true", // true for 465
-  auth: {
-    user: process.env.MAIL_USERNAME,
-    pass: process.env.MAIL_PASSWORD,
+const SMTP_PORT = Number(process.env.SMTP_PORT || 587);
+
+module.exports = {
+  appName: process.env.APP_NAME || "Dream Water Supply",
+
+  smtp: {
+    host: process.env.SMTP_HOST,
+    port: SMTP_PORT,
+    secure: SMTP_PORT === 465, // 465 = SSL, 587 = STARTTLS
+    auth: {
+      user: process.env.SMTP_USER,
+      pass: process.env.SMTP_PASSWORD,
+    },
   },
-  fromName: process.env.MAIL_FROM_NAME || process.env.APP_NAME || "App",
-  supportFrom: process.env.MAIL_SUPPORT_ADDRESS,
-  billingFrom: process.env.MAIL_BILLING_ADDRESS,
+
+  addresses: {
+    support: process.env.MAIL_SUPPORT_ADDRESS || process.env.SMTP_FROM_EMAIL,
+    billing: process.env.MAIL_BILLING_ADDRESS || process.env.SMTP_FROM_EMAIL,
+  },
+
+  from:
+    process.env.SMTP_FROM_EMAIL ||
+    process.env.MAIL_SUPPORT_ADDRESS ||
+    process.env.SMTP_USER,
 };
-
-function assertMailEnv() {
-  const required = ["MAIL_HOST", "MAIL_PORT", "MAIL_USERNAME", "MAIL_PASSWORD", "MAIL_SUPPORT_ADDRESS"];
-  const missing = required.filter((k) => !process.env[k]);
-  if (missing.length) throw new Error(`Missing mail env vars: ${missing.join(", ")}`);
-}
-
-module.exports = { MAIL, assertMailEnv };
