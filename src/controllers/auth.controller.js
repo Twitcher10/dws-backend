@@ -129,20 +129,18 @@ async function forgotPassword(req, res, next) {
     const fromEmail =
       process.env.MAIL_SUPPORT_ADDRESS || process.env.SMTP_DEFAULT_USER;
 
-    await sendMail({
-      to: email,
-      subject: `${appName} Password Reset OTP`,
-      text: `Your OTP is ${otp}. It expires in 10 minutes.`,
-      html: `
-        <div style="font-family:Arial,sans-serif;line-height:1.5">
-          <p>Your OTP is:</p>
-          <h2 style="letter-spacing:3px;margin:10px 0">${otp}</h2>
-          <p>This code expires in <b>10 minutes</b>.</p>
-          <p>If you didn't request this, ignore this email.</p>
-        </div>
-      `,
-      from: fromEmail,
-    });
+    try {
+      await sendMail({
+        to: email,
+        subject: `${appName} Password Reset OTP`,
+        text: `Your OTP is ${otp}. It expires in 10 minutes.`,
+        html: `...`,
+        from: process.env.MAIL_SUPPORT_ADDRESS,
+      });
+    } catch (e) {
+      console.error("❌ OTP email failed:", e?.message || e);
+      // still respond OK (don’t leak, don’t break UX)
+    }
 
     return res.json({
       ok: true,
